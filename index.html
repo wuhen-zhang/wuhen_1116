@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f5f2eb">
   <meta name="description" content="豆豆貼・把日常，煎得剛剛好。探索手作鍋貼、水餃與冷凍禮盒。品牌與點餐體驗示範。">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="豆豆貼">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>豆豆貼 DOU DOU｜把日常，煎得剛剛好</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
@@ -154,6 +161,10 @@
       fill('lane-back',4,.72,18,28);
       fill('lane-front',5,1,11,18);
     })();
+  </script>
+  <script>
+    // 註冊 PWA Service Worker
+    if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
   </script>
 </body>
 </html>
