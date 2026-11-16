@@ -36,6 +36,8 @@
     @keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
     @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
     @media(max-width:640px){.crowd{bottom:96px}}
+    .crowd.is-3d{height:52%;bottom:52px}.crowd.is-3d .lane{display:none}.crowd-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    @media(max-width:640px){.crowd.is-3d{height:46%;bottom:84px}}
     @keyframes walk-r{from{left:-80px}to{left:calc(100% + 80px)}}
     @keyframes walk-l{from{left:calc(100% + 80px)}to{left:-80px}}
   </style>
@@ -178,6 +180,153 @@
       };
       fill('lane-back',4,.72,18,28);
       fill('lane-front',5,1,11,18);
+    })();
+  </script>
+  <script type="module">
+    // 3D 街景：路人來來往往，有人走進／走出豆豆貼（載入失敗時保留 2D 動畫）
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+    (()=>{
+      const host=document.querySelector('.crowd');if(!host)return;
+      let renderer;
+      try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true})}catch(e){return}
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+      renderer.setClearColor(0x000000,0);
+      renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+      renderer.domElement.className='crowd-canvas';
+      host.classList.add('is-3d');host.appendChild(renderer.domElement);
+
+      const scene=new THREE.Scene();
+      const camera=new THREE.PerspectiveCamera(28,1,0.1,100);
+      scene.add(new THREE.HemisphereLight(0xfff1dc,0x5a3d28,1.25));
+      const sun=new THREE.DirectionalLight(0xffe2b8,1.9);
+      sun.position.set(-5,9,7);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
+      Object.assign(sun.shadow.camera,{left:-12,right:12,top:8,bottom:-6,near:1,far:30});sun.shadow.radius=4;
+      scene.add(sun);
+      const ground=new THREE.Mesh(new THREE.PlaneGeometry(60,20),new THREE.ShadowMaterial({opacity:.28}));
+      ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+
+      const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.8});
+      const box=(w,h,d,m)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.castShadow=true;o.receiveShadow=true;return o};
+
+      /* ── 店面 ── */
+      const SHOP_X=2.6,shop=new THREE.Group();shop.position.x=SHOP_X;scene.add(shop);
+      const wall=box(3.4,2.6,2,mat(0xf3ece0));wall.position.set(0,1.3,-1);shop.add(wall);
+      const base=box(3.5,.28,2.05,mat(0x382e25));base.position.set(0,.14,-1);shop.add(base);
+      const roof=box(3.6,.18,2.2,mat(0x382e25));roof.position.set(0,2.69,-1);shop.add(roof);
+      const awning=new THREE.Group();awning.position.set(0,2.18,.05);awning.rotation.x=.5;shop.add(awning);
+      for(let i=0;i<8;i++){const s=box(3.6/8,.06,.75,mat(i%2?0xf5f2eb:0xb6532c));s.position.set(-1.8+3.6/16+i*3.6/8,0,.36);awning.add(s)}
+      const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=128;
+      const g=signCanvas.getContext('2d');g.fillStyle='#382e25';g.fillRect(0,0,512,128);
+      g.fillStyle='#f5f2eb';g.font='600 76px "Noto Serif TC", serif';g.textAlign='center';g.textBaseline='middle';g.fillText('豆 豆 貼',256,68);
+      const signTex=new THREE.CanvasTexture(signCanvas);signTex.colorSpace=THREE.SRGBColorSpace;
+      const sign=new THREE.Mesh(new THREE.BoxGeometry(1.7,.42,.08),[mat(0x382e25),mat(0x382e25),mat(0x382e25),mat(0x382e25),new THREE.MeshStandardMaterial({map:signTex,roughness:.6}),mat(0x382e25)]);
+      sign.position.set(0,2.5,.05);shop.add(sign);
+      const glow=c=>new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.85,roughness:.5});
+      const door=new THREE.Mesh(new THREE.PlaneGeometry(.86,1.7),new THREE.MeshStandardMaterial({color:0x2b1d14,emissive:0x5a2c10,emissiveIntensity:.5}));
+      door.position.set(0,.98,.012);shop.add(door);
+      [-1.12,1.12].forEach(x=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.9,.78),glow(0xffc77d));w.position.set(x,1.32,.012);shop.add(w);
+        const f=box(.98,.06,.06,mat(0x382e25));f.position.set(x,.9,.03);shop.add(f)});
+      [-.62,.62].forEach(x=>{const l=new THREE.Mesh(new THREE.SphereGeometry(.13,16,12),glow(0xd2492a));l.scale.y=1.25;l.position.set(x,1.95,.2);shop.add(l)});
+      // 熱氣
+      const steamMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.0,depthWrite:false});
+      const puffs=Array.from({length:7},(_,i)=>{const p=new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),steamMat.clone());p.userData.t=i/7;shop.add(p);return p});
+
+      /* ── 路人 ── */
+      const TOPS=[0xb6532c,0x382e25,0x6b7f6a,0xc9a27c,0x918576,0x8a5a44,0xe2c9a0,0x4d6378];
+      const PANTS=[0x382e25,0x4a3d31,0x5b6470,0x2f3a46];
+      const SKIN=[0xe8c9a8,0xd9ad86,0xc48f68];
+      const pick=a=>a[Math.floor(Math.random()*a.length)];
+      const limb=(w,h,d,m,y)=>{const pivot=new THREE.Group();const b=box(w,h,d,m);b.position.y=-h/2;pivot.add(b);pivot.position.y=y;return pivot};
+      function makePerson(){
+        const p=new THREE.Group(),top=mat(pick(TOPS)),pants=mat(pick(PANTS)),skin=mat(pick(SKIN));
+        const legL=limb(.15,.86,.17,pants,.9),legR=limb(.15,.86,.17,pants,.9);legL.position.x=-.1;legR.position.x=.1;
+        const torso=new THREE.Mesh(new THREE.CylinderGeometry(.19,.23,.66,14),top);torso.position.y=1.22;torso.castShadow=true;
+        const armL=limb(.1,.58,.11,top,1.5),armR=limb(.1,.58,.11,top,1.5);armL.position.x=-.29;armR.position.x=.29;
+        const head=new THREE.Mesh(new THREE.SphereGeometry(.155,18,14),skin);head.position.y=1.74;head.castShadow=true;
+        p.add(legL,legR,torso,armL,armR,head);
+        const hair=new THREE.Mesh(new THREE.SphereGeometry(.163,18,10,0,Math.PI*2,0,Math.PI/2),mat(Math.random()<.7?0x2a201a:0x6b4a33));
+        hair.position.y=1.76;hair.rotation.x=-.25;p.add(hair);
+        if(Math.random()<.2){const hat=box(.38,.05,.38,mat(0x382e25));hat.position.y=1.88;p.add(hat)}
+        if(Math.random()<.4){const bag=box(.2,.22,.1,mat(0xefe1c8));bag.position.set(0,-.62,0);armR.add(bag)}
+        p.scale.setScalar(.9+Math.random()*.18);
+        p.userData={legL,legR,armL,armR,phase:Math.random()*6};
+        scene.add(p);return p;
+      }
+
+      let halfW=8;
+      const LANES=[1.1,2.1,3.0];
+      const walkers=[];
+      function spawn(w,fromDoor){
+        const d=w.mesh.userData;
+        d.speed=.9+Math.random()*.6;
+        if(fromDoor){ // 從店裡走出來
+          d.state='exit';d.lane=pick(LANES);d.dir=Math.random()<.5?1:-1;
+          w.mesh.position.set(SHOP_X+(Math.random()-.5)*.2,0,-.7);w.mesh.rotation.y=0;w.mesh.visible=true;
+        }else{
+          d.state='walk';d.dir=Math.random()<.5?1:-1;d.lane=pick(LANES);
+          d.enter=Math.random()<.35&&d.lane<2.5;
+          w.mesh.position.set(-d.dir*(halfW+1+Math.random()*4),0,d.lane+(Math.random()-.5)*.25);
+          w.mesh.rotation.y=d.dir*Math.PI/2;w.mesh.visible=true;
+        }
+      }
+      const angTo=(a,b,t)=>{let d=((b-a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;return a+d*Math.min(1,t)};
+
+      function update(w,dt){
+        const m=w.mesh,d=m.userData,pos=m.position;
+        let moving=true;
+        if(d.state==='walk'){
+          pos.x+=d.dir*d.speed*dt;
+          if(d.enter&&Math.abs(pos.x-SHOP_X)<.12){d.state='toDoor'}
+          if(Math.abs(pos.x)>halfW+6&&Math.sign(pos.x)===d.dir)spawn(w,Math.random()<.25);
+        }else if(d.state==='toDoor'){
+          const target=Math.PI;m.rotation.y=angTo(m.rotation.y,target,dt*6);
+          pos.x+=(SHOP_X-pos.x)*Math.min(1,dt*4);
+          pos.z-=d.speed*.8*dt;
+          if(pos.z<-.9){m.visible=false;d.state='inside';d.wait=1+Math.random()*3}
+        }else if(d.state==='inside'){
+          moving=false;d.wait-=dt;if(d.wait<=0)spawn(w,Math.random()<.5);
+        }else if(d.state==='exit'){
+          m.rotation.y=angTo(m.rotation.y,0,dt*6);
+          pos.z+=d.speed*.8*dt;
+          if(pos.z>=d.lane){d.state='walk';d.enter=false}
+          if(pos.z>d.lane-.5)m.rotation.y=angTo(m.rotation.y,d.dir*Math.PI/2,dt*4);
+        }
+        if(d.state==='walk'&&!d.enter)m.rotation.y=angTo(m.rotation.y,d.dir*Math.PI/2,dt*5);
+        if(moving){
+          d.phase+=dt*d.speed*6.2;
+          const s=Math.sin(d.phase);
+          d.legL.rotation.x=s*.55;d.legR.rotation.x=-s*.55;
+          d.armL.rotation.x=-s*.45;d.armR.rotation.x=s*.45;
+          pos.y=Math.abs(Math.cos(d.phase))*.035;
+        }
+      }
+
+      function resize(){
+        const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;
+        renderer.setSize(w,h,false);camera.aspect=w/h;
+        // 依寬度調整鏡頭距離，讓店面與街道都在畫面內
+        const needHalf=Math.max(5.2,Math.min(9,w/90));halfW=needHalf;
+        const dist=needHalf/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.aspect);
+        camera.position.set(-dist*.28,dist*.42,dist+1.5);camera.lookAt(.4,.7,.6);
+        camera.updateProjectionMatrix();
+        const want=w<500?6:w<800?9:12;
+        while(walkers.length<want){const w2={mesh:makePerson()};spawn(w2,false);w2.mesh.position.x=(Math.random()*2-1)*halfW;walkers.push(w2)}
+        walkers.forEach((w2,i)=>{w2.mesh.visible=i<want&&w2.mesh.userData.state!=='inside';w2.active=i<want});
+      }
+      new ResizeObserver(resize).observe(host);resize();
+
+      let visible=true,last=performance.now();
+      new IntersectionObserver(es=>{visible=es[0].isIntersecting;last=performance.now()}).observe(host);
+      function tick(now){
+        requestAnimationFrame(tick);
+        if(!visible||document.hidden){last=now;return}
+        const dt=Math.min(.05,(now-last)/1000);last=now;
+        walkers.forEach(w=>{if(w.active)update(w,dt)});
+        puffs.forEach(p=>{p.userData.t=(p.userData.t+dt*.25)%1;const t=p.userData.t;
+          p.position.set(.9+Math.sin(t*6+p.id)*.12,2.85+t*1.1,-1.2);p.scale.setScalar(.6+t*1.4);p.material.opacity=Math.sin(t*Math.PI)*.35});
+        renderer.render(scene,camera);
+      }
+      requestAnimationFrame(tick);
     })();
   </script>
   <script>
