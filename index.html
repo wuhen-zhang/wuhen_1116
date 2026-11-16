@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI3 南港美食 3D 午餐選擇器</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#fff;background:#0d1230}
+  #canvas-container{position:absolute;inset:0;background:radial-gradient(circle at 60% 45%,#2b2f6b 0%,#0d1230 70%)}
+  #canvas-container canvas{display:block}
+  #header{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:0 24px;font-size:20px;font-weight:700;letter-spacing:1px;z-index:5;pointer-events:none;text-shadow:0 2px 8px #0008}
+  #header small{margin-left:14px;font-weight:400;font-size:13px;opacity:.7}
+  .glass{background:rgba(255,255,255,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.35);border-radius:18px}
+  #ui-container{position:absolute;top:70px;left:16px;width:270px;max-height:calc(100% - 86px);overflow:auto;padding:18px;z-index:5}
+  #ui-container h3{font-size:14px;margin:14px 0 8px;color:#ffd166}
+  #ui-container h3:first-child{margin-top:0}
+  label{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:15px}
+  input[type=radio],input[type=checkbox]{accent-color:#ff6b6b;width:16px;height:16px}
+  .types{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+  #count{margin:14px 0 4px;font-size:14px;text-align:center}
+  #count b{font-size:22px;color:#ffd166}
+  #hint{min-height:18px;font-size:12px;color:#ff9b9b;text-align:center;margin-bottom:6px}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;padding:12px 16px;transition:transform .15s,opacity .15s}
+  button:hover:not(:disabled){transform:translateY(-2px)}
+  #spin-btn{width:100%;background:linear-gradient(135deg,#ff6b6b,#ff9f43);box-shadow:0 6px 18px rgba(255,107,107,.45)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  #result-modal{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,8,25,.55);z-index:10;transition:opacity .3s}
+  #result-modal.hidden{opacity:0;pointer-events:none}
+  #result-card{width:min(420px,90vw);padding:28px;text-align:center;transform:scale(1);transition:transform .3s}
+  #result-modal.hidden #result-card{transform:scale(.85)}
+  #result-card .lead{font-size:14px;opacity:.8}
+  #result-card h2{font-size:30px;margin:8px 0 12px;color:#ffd166}
+  #result-card .dist{font-size:16px;margin-bottom:12px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:20px}
+  .tag{background:rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;font-size:13px}
+  .actions{display:flex;flex-direction:column;gap:10px}
+  .btn-nav{background:linear-gradient(135deg,#1dd1a1,#10ac84);text-decoration:none;display:block;border-radius:12px;padding:12px;font-weight:700;color:#fff}
+  .btn-again{background:linear-gradient(135deg,#ff6b6b,#ff9f43)}
+  .btn-reset{background:rgba(255,255,255,.2)}
+  #note{position:absolute;bottom:8px;right:14px;font-size:11px;opacity:.5;z-index:5}
+  @media(max-width:700px){#ui-container{width:auto;right:16px;max-height:46%}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+<div id="canvas-container"></div>
+<div id="header">🍜 AI3 南港午餐 3D 決策器<small>南港軟體園區・半徑 2 公里</small></div>
+
+<div id="ui-container" class="glass">
+  <h3>距離選擇</h3>
+  <label><input type="radio" name="dist" value="500">500 公尺以內</label>
+  <label><input type="radio" name="dist" value="1000">1 公里以內</label>
+  <label><input type="radio" name="dist" value="2000" checked>2 公里以內</label>
+  <h3>環境條件</h3>
+  <label><input type="checkbox" id="ac" checked>必須有冷氣</label>
+  <h3>食物種類</h3>
+  <div class="types" id="types"></div>
+  <div id="count"></div>
+  <div id="hint"></div>
+  <button id="spin-btn">開始決策！</button>
+</div>
+
+<div id="result-modal" class="hidden">
+  <div id="result-card" class="glass">
+    <div class="lead">🎉 今天中午就吃</div>
+    <h2 id="r-name"></h2>
+    <div class="dist" id="r-dist"></div>
+    <div class="tags" id="r-tags"></div>
+    <div class="actions">
+      <a id="r-map" class="btn-nav" target="_blank" rel="noopener">📍 開啟 Google 地圖導航</a>
+      <button class="btn-again" id="again-btn">不滿意，再抽一次</button>
+      <button class="btn-reset" id="reset-btn">重新篩選</button>
+    </div>
+  </div>
+</div>
+<div id="note">* 餐廳與距離為示意資料，請依實際情況修改 RESTAURANTS 陣列</div>
+
+<script>
+// ===== 1. 餐廳資料庫（示意資料，距離為概估，請自行校正） =====
+const maps = n => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("南港 " + n);
+const R = (id,name,d,ac,cats,p) => ({id:"rest_"+String(id).padStart(3,"0"),name,distanceMeters:d,hasAC:ac,categories:cats,googleMapUrl:maps(name),priceRange:p});
+const RESTAURANTS = [
+  R(1,"樂法 Le Phu",300,true,["漢堡/美式","其他/小吃"],"$"),
+  R(2,"朱記餡餅粥店",1200,true,["麵","飯","鍋貼/水餃"],"$$"),
+  R(3,"八方雲集 南港店",400,true,["鍋貼/水餃","麵"],"$"),
+  R(4,"麥當勞 南港軟體園區店",450,true,["漢堡/美式"],"$"),
+  R(5,"吉野家 南港店",700,true,["飯"],"$"),
+  R(6,"三商巧福 南港店",500,true,["麵"],"$"),
+  R(7,"爭鮮迴轉壽司 環球店",1100,true,["飯","其他/小吃"],"$$"),
+  R(8,"摩斯漢堡 南港店",900,true,["漢堡/美式"],"$"),
+  R(9,"麵屋一燈 南港",1300,true,["麵"],"$$"),
+  R(10,"老張牛肉麵",350,false,["麵"],"$"),
+  R(11,"南港老街滷肉飯",800,false,["飯","其他/小吃"],"$"),
+  R(12,"南港瓦城 環球店",1100,true,["飯","麵","其他/小吃"],"$$$"),
+  R(13,"Subway 南港店",600,true,["漢堡/美式","健康/沙拉"],"$"),
+  R(14,"鼎泰豐 南港店",1150,true,["其他/小吃","麵"],"$$$"),
+  R(15,"沙拉職人 輕食",480,true,["健康/沙拉"],"$$"),
+  R(16,"阿嬤水餃店",950,false,["鍋貼/水餃"],"$"),
+  R(17,"一蘭風拉麵屋",1500,true,["麵"],"$$"),
+  R(18,"池上便當",250,false,["飯"],"$"),
+  R(19,"昆陽排骨飯",1700,false,["飯"],"$"),
+  R(20,"汐止交界港式燒臘",1900,true,["飯","其他/小吃"],"$$"),
+  R(21,"南港豆漿燒餅店",650,false,["其他/小吃"],"$"),
+  R(22,"Burger King 昆陽店",1800,true,["漢堡/美式"],"$"),
+  R(23,"小林水餃鍋貼",1400,true,["鍋貼/水餃"],"$"),
+  R(24,"輕食碗 Poke Bowl",1000,true,["飯","健康/沙拉"],"$$"),
+];
+const TYPES = ["麵","飯","鍋貼/水餃","漢堡/美式","其他/小吃","健康/沙拉"];
+const COLORS = ["#ef476f","#ffd166","#06d6a0","#118ab2","#9b5de5","#f78c6b","#43aa8b","#f15bb5"];
+
+// ===== 2. Three.js 初始化 =====
+const container = document.getElementById("canvas-container");
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.set(0, 0, 11);
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+container.appendChild(renderer.domElement);
+scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+const dl = new THREE.DirectionalLight(0xffffff, 0.9);
+dl.position.set(4, 6, 10);
+scene.add(dl);
+
+const wheelGroup = new THREE.Group();   // 整體傾斜、飄動
+const wheel = new THREE.Group();        // 實際旋轉
+wheelGroup.add(wheel);
+scene.add(wheelGroup);
+const RAD = 3.6;
+let faceMesh = null, faceTex = null;
+
+// 輪盤本體（金屬邊框 + 厚度）
+const body = new THREE.Mesh(
+  new THREE.CylinderGeometry(RAD + 0.15, RAD + 0.15, 0.4, 64),
+  new THREE.MeshStandardMaterial({color:0xffd166, metalness:.6, roughness:.3}));
+body.rotation.x = Math.PI / 2;
+wheel.add(body);
+const hub = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.35, 0.35, 0.6, 32),
+  new THREE.MeshStandardMaterial({color:0xffffff, metalness:.7, roughness:.2}));
+hub.rotation.x = Math.PI / 2; hub.position.z = 0.1;
+wheel.add(hub);
+
+// 指針（頂端，固定不隨輪盤轉）
+const pointer = new THREE.Mesh(
+  new THREE.ConeGeometry(0.35, 0.9, 4),
+  new THREE.MeshStandardMaterial({color:0xff3b3b, metalness:.3, roughness:.4}));
+pointer.rotation.z = Math.PI;
+pointer.position.set(0, RAD + 0.35, 0.5);
+wheelGroup.add(pointer);
+
+// ===== 3. 動態繪製輪盤貼圖 =====
+function buildFace(list) {
+  const S = 1024, c = document.createElement("canvas");
+  c.width = c.height = S;
+  const g = c.getContext("2d"), r = S / 2, n = list.length, step = Math.PI * 2 / n;
+  g.clearRect(0, 0, S, S);
+  if (n === 0) {
+    g.fillStyle = "#555"; g.beginPath(); g.arc(r, r, r, 0, 7); g.fill();
+    g.fillStyle = "#fff"; g.font = "bold 56px sans-serif"; g.textAlign = "center";
+    g.fillText("沒有符合的餐廳", r, r);
+  }
+  list.forEach((rest, i) => {
+    g.fillStyle = COLORS[i % COLORS.length];
+    g.beginPath(); g.moveTo(r, r);
+    g.arc(r, r, r - 2, i * step, (i + 1) * step); g.closePath(); g.fill();
+    g.strokeStyle = "rgba(255,255,255,.7)"; g.lineWidth = 3; g.stroke();
+    g.save();
+    g.translate(r, r); g.rotate((i + 0.5) * step);
+    g.fillStyle = "#1b1b2f"; g.textAlign = "right"; g.textBaseline = "middle";
+    let fs = Math.min(54, Math.max(22, 560 / n * 0.9));
+    g.font = `bold ${fs}px "Microsoft JhengHei",sans-serif`;
+    let t = rest.name;
+    while (g.measureText(t).width > r - 130 && fs > 16) { fs -= 2; g.font = `bold ${fs}px "Microsoft JhengHei",sans-serif`; }
+    g.fillText(t, r - 40, 0);
+    g.restore();
+  });
+  const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+let currentList = [];
+function rebuildWheel() {
+  if (faceMesh) { wheel.remove(faceMesh); faceMesh.geometry.dispose(); faceTex.dispose(); faceMesh.material.dispose(); }
+  faceTex = buildFace(currentList);
+  faceMesh = new THREE.Mesh(
+    new THREE.CircleGeometry(RAD, 96),
+    new THREE.MeshStandardMaterial({map:faceTex, roughness:.5, metalness:.1}));
+  faceMesh.position.z = 0.21;
+  wheel.add(faceMesh);
+}
+
+// ===== 4. 篩選邏輯 =====
+const typesEl = document.getElementById("types");
+TYPES.forEach(t => {
+  typesEl.insertAdjacentHTML("beforeend", `<label><input type="checkbox" class="ftype" value="${t}" checked>${t}</label>`);
+});
+const spinBtn = document.getElementById("spin-btn");
+function getFiltered() {
+  const maxD = +document.querySelector("input[name=dist]:checked").value;
+  const needAC = document.getElementById("ac").checked;
+  const sel = [...document.querySelectorAll(".ftype:checked")].map(e => e.value);
+  return RESTAURANTS.filter(r => r.distanceMeters <= maxD && (!needAC || r.hasAC) && r.categories.some(c => sel.includes(c)));
+}
+function applyFilter() {
+  currentList = getFiltered();
+  document.getElementById("count").innerHTML = `符合條件：<b>${currentList.length}</b> 間`;
+  document.getElementById("hint").textContent = currentList.length ? "" : "沒有符合的餐廳，請放寬篩選條件";
+  spinBtn.disabled = spinning || currentList.length === 0;
+  if (!spinning) { wheel.rotation.z = 0; rebuildWheel(); }
+}
+document.getElementById("ui-container").addEventListener("change", applyFilter);
+
+// ===== 5. 轉動動畫（Ease-Out） =====
+let spinning = false;
+const DURATION = 3000;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+function spin() {
+  if (spinning || !currentList.length) return;
+  spinning = true; spinBtn.disabled = true;
+  const n = currentList.length, step = Math.PI * 2 / n;
+  const idx = Math.floor(Math.random() * n);
+  // 貼圖扇區 i 的中心在 mesh 角度 -(i+.5)*step；旋轉 R 後要落在頂端 π/2
+  const jitter = (Math.random() - 0.5) * step * 0.7;
+  const desired = Math.PI / 2 + (idx + 0.5) * step + jitter;
+  const TWO = Math.PI * 2, start = wheel.rotation.z;
+  let delta = ((desired - start) % TWO + TWO) % TWO;
+  const end = start + TWO * 5 + delta;
+  const t0 = performance.now();
+  (function tick(now) {
+    const t = Math.min((now - t0) / DURATION, 1);
+    wheel.rotation.z = start + (end - start) * easeOut(t);
+    if (t < 1) return requestAnimationFrame(tick);
+    spinning = false;
+    wheel.rotation.z = end % TWO;
+    burst();
+    setTimeout(() => showResult(currentList[idx]), 700);
+  })(t0);
+}
+
+// ===== 粒子（Confetti） =====
+const PN = 220;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PN * 3), pCol = new Float32Array(PN * 3), pVel = [];
+pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
+pGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
+const confetti = new THREE.Points(pGeo, new THREE.PointsMaterial({size:.22, vertexColors:true, transparent:true, depthWrite:false}));
+confetti.visible = false; confetti.frustumCulled = false;
+scene.add(confetti);
+let burstT = 0;
+function burst() {
+  const col = new THREE.Color();
+  for (let i = 0; i < PN; i++) {
+    pPos.set([0, 0, 1], i * 3);
+    const a = Math.random() * Math.PI * 2, s = 3 + Math.random() * 7;
+    pVel[i] = [Math.cos(a) * s, Math.sin(a) * s + 3, (Math.random() - .3) * 5];
+    col.set(COLORS[i % COLORS.length]); pCol.set([col.r, col.g, col.b], i * 3);
+  }
+  pGeo.attributes.color.needsUpdate = true;
+  confetti.visible = true; burstT = 2.2; confetti.material.opacity = 1;
+}
+
+// ===== 6. 結果顯示與 UI =====
+const modal = document.getElementById("result-modal");
+function showResult(r) {
+  const walk = Math.max(1, Math.round(r.distanceMeters / 80));
+  document.getElementById("r-name").textContent = r.name;
+  document.getElementById("r-dist").textContent = `📏 ${r.distanceMeters} 公尺，步行約 ${walk} 分鐘　${r.priceRange}`;
+  document.getElementById("r-tags").innerHTML = [(r.hasAC ? "有冷氣" : "無冷氣"), ...r.categories].map(t => `<span class="tag">${t}</span>`).join("");
+  document.getElementById("r-map").href = r.googleMapUrl;
+  modal.classList.remove("hidden");
+}
+function closeModal() { modal.classList.add("hidden"); spinning = false; applyFilter(); }
+spinBtn.onclick = spin;
+document.getElementById("again-btn").onclick = () => { modal.classList.add("hidden"); setTimeout(spin, 250); };
+document.getElementById("reset-btn").onclick = closeModal;
+
+// 拖曳旋轉（非抽籤時）
+let drag = null;
+renderer.domElement.addEventListener("pointerdown", e => { if (!spinning) drag = e.clientX; });
+addEventListener("pointerup", () => drag = null);
+addEventListener("pointermove", e => {
+  if (drag !== null && !spinning) { wheel.rotation.z += (e.clientX - drag) * 0.008; drag = e.clientX; }
+});
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h); camera.aspect = w / h;
+  // 寬螢幕時把輪盤往右移，避開側邊欄
+  camera.position.z = w < 700 ? 15 : 11;
+  wheelGroup.position.x = w < 700 ? 0 : 1.8;
+  wheelGroup.position.y = w < 700 ? -1.5 : 0;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+
+// ===== 主迴圈 =====
+const clock = new THREE.Clock();
+(function loop() {
+  requestAnimationFrame(loop);
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  wheelGroup.rotation.y = Math.sin(t * 0.6) * 0.18;   // 微弱擺動
+  wheelGroup.rotation.x = Math.sin(t * 0.45) * 0.08;
+  if (!spinning && !drag && modal.classList.contains("hidden")) wheel.rotation.z += dt * 0.08; // 閒置緩轉
+  if (burstT > 0) {
+    burstT -= dt;
+    for (let i = 0; i < PN; i++) {
+      pVel[i][1] -= 9 * dt;
+      pPos[i*3] += pVel[i][0] * dt; pPos[i*3+1] += pVel[i][1] * dt; pPos[i*3+2] += pVel[i][2] * dt;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+    confetti.material.opacity = Math.min(1, burstT);
+    if (burstT <= 0) confetti.visible = false;
+  }
+  renderer.render(scene, camera);
+})();
+
+resize();
+applyFilter();
+</script>
+</body>
+</html>
