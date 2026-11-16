@@ -1,5 +1,5 @@
 // 豆豆貼 PWA Service Worker
-const VERSION = 'doudou-v2';
+const VERSION = 'doudou-v3';
 const SHELL = [
   './',
   './index.html',
