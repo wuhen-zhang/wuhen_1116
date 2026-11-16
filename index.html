@@ -10,31 +10,27 @@
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
-    :root{--ink:#382e25;--cream:#f5f2eb;--orange:#b6532c;--line:#d9d2c6}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:var(--cream);color:var(--ink);font-family:'Noto Sans TC',sans-serif}button,a,input,select{ -webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer}a{text-decoration:none;color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #b6532c;outline-offset:5px}h1,h2,h3,.serif{font-family:'Noto Serif TC',serif}img{display:block;width:100%;height:100%;object-fit:cover}.wrap{max-width:1400px;margin:auto;padding:0 5%}.eyebrow{font-size:11px;letter-spacing:.23em;font-weight:600;text-transform:uppercase}.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:48px;padding:13px 24px;border:1px solid var(--ink);font-size:13px;transition:.2s}.btn:hover{transform:translateY(-2px);background:#e9e3d8}.btn-dark{background:var(--ink);color:white}.btn-dark:hover{background:#574636}.btn-orange{background:var(--orange);border-color:var(--orange);color:white}.btn-orange:hover{background:#964222}.icon{width:20px;height:20px;stroke-width:1.5}.section{padding-top:100px;padding-bottom:100px}.section-title{font-size:clamp(30px,3.2vw,46px);font-weight:500;letter-spacing:.04em;line-height:1.5}.muted{color:#7e7468;font-size:14px;line-height:1.9}.paper{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23968a76' opacity='.06' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E")}.tab{padding:13px 24px;border:1px solid var(--line);font-size:13px;white-space:nowrap}.tab[aria-selected=true]{background:var(--ink);color:white;border-color:var(--ink)}.product img{transition:transform .7s}.product:hover img{transform:scale(1.05)}.product{animation:appear .35s both}.overlay{position:fixed;inset:0;background:#201a1680;backdrop-filter:blur(4px);z-index:60}.drawer{position:fixed;inset:0 0 0 auto;width:min(460px,100%);background:var(--cream);z-index:70;display:flex;flex-direction:column;box-shadow:-20px 0 100px #0002}.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:#201a1680;backdrop-filter:blur(5px)}.modal-card{background:var(--cream);width:min(540px,100%);max-height:90dvh;overflow:auto;padding:32px}.field{width:100%;border:1px solid var(--line);background:#fff9;padding:12px;margin-top:7px;border-radius:0;font:inherit;font-size:14px}.hidden,[hidden]{display:none!important}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:15px 22px;z-index:100;max-width:calc(100% - 30px);width:max-content;font-size:13px;box-shadow:0 8px 30px #0002}details{border-bottom:1px solid var(--line);padding:22px 0}summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:18px;font-size:15px}summary::-webkit-details-marker{display:none}summary:after{content:'+';font-size:22px;font-weight:400}details[open] summary:after{content:'−'}details p{padding:16px 30px 0 0}.map{background:#e8e5dc;position:relative;overflow:hidden;min-height:340px}.map-grid{position:absolute;inset:-40%;transform:rotate(-23deg);background:repeating-linear-gradient(90deg,transparent 0 76px,#faf8f2 77px 93px,transparent 94px 170px),repeating-linear-gradient(0deg,transparent 0 66px,#faf8f2 67px 82px,transparent 83px 150px)}.map-pin{position:absolute;top:43%;left:47%;background:var(--orange);padding:15px;color:white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 8px 18px #6a493c40}.map-pin svg{transform:rotate(45deg)}.store-tab{padding:16px 20px;border-bottom:2px solid transparent;color:#8b8176;font-size:14px}.store-tab[aria-selected=true]{border-color:var(--orange);color:var(--ink)}@keyframes appear{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@media(max-width:767px){.section{padding-top:65px;padding-bottom:65px}.wrap{padding-left:6%;padding-right:6%}.tab{padding:12px 18px}.modal-card{padding:24px}.hero-photo{min-height:390px!important}.hero-copy{padding-top:48px!important;padding-bottom:48px!important}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+    :root{--ink:#382e25;--cream:#f5f2eb;--orange:#b6532c;--line:#d9d2c6}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:var(--cream);color:var(--ink);font-family:'Noto Sans TC',sans-serif}button,a,input,select{ -webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer}a{text-decoration:none;color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #b6532c;outline-offset:5px}h1,h2,h3,.serif{font-family:'Noto Serif TC',serif}img{display:block;width:100%;height:100%;object-fit:cover}.wrap{max-width:1400px;margin:auto;padding:0 5%}.eyebrow{font-size:11px;letter-spacing:.23em;font-weight:600;text-transform:uppercase}.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:48px;padding:13px 24px;border:1px solid var(--ink);font-size:13px;transition:.2s}.btn:hover{transform:translateY(-2px);background:#e9e3d8}.btn-dark{background:var(--ink);color:white}.btn-dark:hover{background:#574636}.btn-orange{background:var(--orange);border-color:var(--orange);color:white}.btn-orange:hover{background:#964222}.icon{width:20px;height:20px;stroke-width:1.5}.section{padding-top:100px;padding-bottom:100px}.section-title{font-size:clamp(30px,3.2vw,46px);font-weight:500;letter-spacing:.04em;line-height:1.5}.muted{color:#7e7468;font-size:14px;line-height:1.9}.paper{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23968a76' opacity='.06' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E")}.tab{padding:13px 24px;border:1px solid var(--line);font-size:13px;white-space:nowrap}.tab[aria-selected=true]{background:var(--ink);color:white;border-color:var(--ink)}.product img{transition:transform .7s}.product:hover img{transform:scale(1.05)}.product{animation:appear .35s both}.overlay{position:fixed;inset:0;background:#201a1680;backdrop-filter:blur(4px);z-index:60}.drawer{position:fixed;inset:0 0 0 auto;width:min(460px,100%);background:var(--cream);z-index:70;display:flex;flex-direction:column;box-shadow:-20px 0 100px #0002}.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:#201a1680;backdrop-filter:blur(5px)}.modal-card{background:var(--cream);width:min(540px,100%);max-height:90dvh;overflow:auto;padding:32px}.field{width:100%;border:1px solid var(--line);background:#fff9;padding:12px;margin-top:7px;border-radius:0;font:inherit;font-size:14px}.hidden,[hidden]{display:none!important}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:15px 22px;z-index:100;max-width:calc(100% - 30px);width:max-content;font-size:13px;box-shadow:0 8px 30px #0002}details{border-bottom:1px solid var(--line);padding:22px 0}summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:18px;font-size:15px}summary::-webkit-details-marker{display:none}summary:after{content:'+';font-size:22px;font-weight:400}details[open] summary:after{content:'−'}details p{padding:16px 30px 0 0}.map{background:#e8e5dc;position:relative;overflow:hidden;min-height:340px}.map-grid{position:absolute;inset:-40%;transform:rotate(-23deg);background:repeating-linear-gradient(90deg,transparent 0 76px,#faf8f2 77px 93px,transparent 94px 170px),repeating-linear-gradient(0deg,transparent 0 66px,#faf8f2 67px 82px,transparent 83px 150px)}.map-pin{position:absolute;top:43%;left:47%;background:var(--orange);padding:15px;color:white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 8px 18px #6a493c40}.map-pin svg{transform:rotate(45deg)}.store-tab{padding:16px 20px;border-bottom:2px solid transparent;color:#8b8176;font-size:14px}.store-tab[aria-selected=true]{border-color:var(--orange);color:var(--ink)}@keyframes appear{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@media(max-width:767px){.section{padding-top:65px;padding-bottom:65px}.wrap{padding-left:6%;padding-right:6%}.tab{padding:12px 18px}.modal-card{padding:24px}.hero-photo{min-height:390px!important}.hero-copy{padding-top:48px!important;padding-bottom:48px!important}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}:not(.crowd *),:not(.crowd *):before,:not(.crowd *):after{animation:none!important;transition:none!important}}
     .booking-float{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom));z-index:50;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:16px 24px;border-radius:999px;background:var(--orange);color:#fff;font-size:14px;font-weight:600;letter-spacing:.06em;box-shadow:0 6px 24px #382e2533;transition:background .2s,transform .2s,box-shadow .2s}.booking-float:hover{background:#964222;transform:translateY(-3px);box-shadow:0 10px 28px #382e2540}.booking-float svg{width:22px;height:22px;flex-shrink:0}@media(max-width:767px){.booking-float{right:max(16px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));min-height:52px;padding:14px 20px}footer{padding-bottom:96px!important}}
 
-    /* 人來人往街景動畫 */
-    .street{position:relative;height:230px;overflow:hidden;background:linear-gradient(#f5f2eb 0%,#eee7da 72%,#e4dccd 72%,#ddd3c2 100%);border-bottom:1px solid var(--line)}
-    .street-label{position:absolute;left:max(16px,4vw);top:22px;z-index:3;font-size:11px;letter-spacing:.3em;color:#918576}
-    .street-shop{position:absolute;left:50%;bottom:62px;width:200px;transform:translateX(-50%);z-index:1}
-    .street-shop .steam path{stroke:#918576;stroke-width:2;fill:none;stroke-linecap:round;opacity:0;animation:steam 3.2s ease-in-out infinite}
-    .street-shop .steam path:nth-child(2){animation-delay:1s}.street-shop .steam path:nth-child(3){animation-delay:2s}
-    @keyframes steam{0%{opacity:0;transform:translateY(6px)}40%{opacity:.7}100%{opacity:0;transform:translateY(-14px)}}
-    .lane{position:absolute;left:0;right:0}
-    .lane-back{bottom:66px;z-index:0}.lane-front{bottom:14px;z-index:2}
-    .walker{position:absolute;bottom:0;left:0;will-change:transform;animation:walk-r linear infinite}
+    /* 海報上的人來人往動畫 */
+    .crowd{position:absolute;left:0;right:0;bottom:64px;height:120px;z-index:1;pointer-events:none;overflow:hidden}
+    .lane{position:absolute;left:0;right:0;bottom:0;height:100%}
+    .lane-back{bottom:30px;opacity:.85}.lane-front{bottom:0}
+    .walker{position:absolute;bottom:0;left:-80px;animation:walk-r linear infinite}
     .walker.to-left{animation-name:walk-l}
     .walker.to-left svg{transform:scaleX(-1)}
-    .walker svg{display:block;overflow:visible}
+    .walker svg{display:block;overflow:visible;filter:drop-shadow(0 2px 3px #0005)}
     .walker .bob{animation:bob .5s ease-in-out infinite alternate}
-    .walker .leg-a,.walker .arm-b{transform-origin:20px 56px;animation:swing .5s ease-in-out infinite alternate}
-    .walker .leg-b,.walker .arm-a{transform-origin:20px 56px;animation:swing .5s ease-in-out infinite alternate-reverse}
+    .walker .leg-a,.walker .leg-b,.walker .arm-a,.walker .arm-b{animation:swing .5s ease-in-out infinite alternate}
+    .walker .leg-a,.walker .leg-b{transform-origin:20px 56px}
     .walker .arm-a,.walker .arm-b{transform-origin:20px 28px}
+    .walker .leg-b,.walker .arm-a{animation-direction:alternate-reverse}
     @keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
     @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
-    @keyframes walk-r{from{transform:translateX(-80px)}to{transform:translateX(calc(100vw + 80px))}}
-    @keyframes walk-l{from{transform:translateX(calc(100vw + 80px))}to{transform:translateX(-80px)}}
-    @media(prefers-reduced-motion:reduce){.street *{animation-play-state:paused!important}}
+    @media(max-width:640px){.crowd{bottom:96px}}
+    @keyframes walk-r{from{left:-80px}to{left:calc(100% + 80px)}}
+    @keyframes walk-l{from{left:calc(100% + 80px)}to{left:-80px}}
   </style>
 </head>
 <body class="paper">
@@ -51,26 +47,9 @@
     <!-- 主視覺 -->
     <section id="home" class="grid md:grid-cols-2 min-h-[650px]">
       <div class="hero-copy flex flex-col justify-center px-[12%] py-20 relative"><p class="eyebrow text-[#b6532c] mb-8 flex items-center gap-3"><span class="w-8 h-px bg-[#b6532c]"></span>Handcrafted. Every day.</p><h1 class="text-[44px] lg:text-[64px] leading-[1.5] font-medium tracking-[.06em]">把日常，<br>煎得<span class="text-[#b6532c]">剛剛好。</span></h1><p class="muted mt-7 max-w-sm">一面金黃，一口暖心。<br>把對食材的講究，包進每一顆手作鍋貼。<br>最簡單的美味，值得好好對待。</p><div class="flex flex-wrap gap-3 mt-10"><a href="#order" class="btn btn-orange">線上點餐 <i data-lucide="arrow-right" class="icon"></i></a><a href="#locations" class="btn">探索門市 <i data-lucide="map-pin" class="icon"></i></a></div><p class="eyebrow text-[#918576] mt-16">Good food. Good ordinary days.</p></div>
-      <div class="hero-photo relative min-h-[650px] overflow-hidden"><img src="https://i.postimg.cc/j2YmMLV1/Chat-GPT-Image-2026nian8yue9ri-xia-wu06-20-57.png" alt="豆豆貼主視覺海報" fetchpriority="high"><div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div><div class="absolute top-8 right-8 text-white border border-white/60 rounded-full w-24 h-24 flex items-center justify-center text-center text-xs leading-6 tracking-[.2em] rotate-12">用心手作<br>一口幸福</div><div class="absolute bottom-8 left-8 right-8 text-white flex justify-between items-end"><p class="serif text-lg tracking-widest">好好吃飯，慢慢生活。</p><span class="text-[10px] tracking-widest">01 — THE EVERYDAY RITUAL</span></div></div>
+      <div class="hero-photo relative min-h-[650px] overflow-hidden"><img src="https://i.postimg.cc/j2YmMLV1/Chat-GPT-Image-2026nian8yue9ri-xia-wu06-20-57.png" alt="豆豆貼主視覺海報" fetchpriority="high"><div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div><div class="crowd" aria-hidden="true"><div class="lane lane-back" id="lane-back"></div><div class="lane lane-front" id="lane-front"></div></div><div class="absolute top-8 right-8 text-white border border-white/60 rounded-full w-24 h-24 flex items-center justify-center text-center text-xs leading-6 tracking-[.2em] rotate-12">用心手作<br>一口幸福</div><div class="absolute bottom-8 left-8 right-8 text-white flex justify-between items-end"><p class="serif text-lg tracking-widest">好好吃飯，慢慢生活。</p><span class="text-[10px] tracking-widest">01 — THE EVERYDAY RITUAL</span></div></div>
     </section>
     <div class="border-y border-[#d9d2c6] py-5 text-center text-[11px] md:text-xs tracking-[.15em] px-4">在地好食材 <span class="mx-3 md:mx-8 text-[#b6532c]">✳</span> 每日手工現包 <span class="mx-3 md:mx-8 text-[#b6532c]">✳</span> 現點・現煎・剛剛好</div>
-    <!-- 人來人往街景動畫 -->
-    <section class="street" aria-label="街景動畫：店門口人來人往">
-      <p class="street-label">EVERYDAY STREET</p>
-      <div class="lane lane-back" id="lane-back" aria-hidden="true"></div>
-      <svg class="street-shop" viewBox="0 0 200 120" aria-hidden="true">
-        <g class="steam"><path d="M70 22c-4-6 4-10 0-16"/><path d="M100 18c-4-6 4-10 0-16"/><path d="M130 22c-4-6 4-10 0-16"/></g>
-        <rect x="20" y="40" width="160" height="80" fill="#f5f2eb" stroke="#382e25" stroke-width="1.5"/>
-        <path d="M14 40h172l-8 18H22z" fill="#b6532c"/>
-        <path d="M44 40l-4 18M74 40l-2 18M104 40v18M134 40l2 18M164 40l4 18" stroke="#f5f2eb" stroke-width="6" opacity=".55"/>
-        <rect x="70" y="26" width="60" height="16" rx="2" fill="#382e25"/>
-        <text x="100" y="38" text-anchor="middle" fill="#f5f2eb" font-size="10" letter-spacing="3" font-family="Noto Serif TC,serif">豆豆貼</text>
-        <rect x="34" y="70" width="44" height="34" fill="#efe1c8" stroke="#382e25"/><rect x="122" y="70" width="44" height="34" fill="#efe1c8" stroke="#382e25"/>
-        <rect x="88" y="72" width="24" height="48" fill="#382e25"/>
-        <circle cx="56" cy="92" r="6" fill="#c9a27c"/><circle cx="144" cy="92" r="6" fill="#c9a27c"/>
-      </svg>
-      <div class="lane lane-front" id="lane-front" aria-hidden="true"></div>
-    </section>
     <!-- 品牌故事：示範文案明確標示於頁尾 -->
     <section id="story" class="wrap section grid md:grid-cols-2 gap-12 lg:gap-24 items-center">
       <div class="relative pr-6 pb-6"><div class="aspect-[5/4] overflow-hidden"><img loading="lazy" src="https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=1100&q=85" alt="細緻摺邊的手工餃子"></div><div class="absolute bottom-0 right-0 bg-[#b6532c] text-[#f5f2eb] p-6 serif text-lg leading-8">手作的溫度，<br>吃得到。</div></div>
@@ -141,7 +120,7 @@
   </script>
 
   <script>
-    // 人來人往街景：隨機產生行人
+    // 海報上的人來人往：隨機產生行人
     (()=>{
       const tops=['#b6532c','#382e25','#6b7f6a','#c9a27c','#918576','#8a5a44'];
       const skins=['#e8c9a8','#d9ad86','#c48f68'];
@@ -160,7 +139,7 @@
       };
       const fill=(id,n,scale,min,max)=>{
         const lane=document.getElementById(id);if(!lane)return;
-        n=Math.max(3,Math.round(n*Math.min(1,window.innerWidth/900)));
+        n=Math.max(3,Math.round(n*Math.min(1,lane.offsetWidth/640)));
         for(let i=0;i<n;i++){
           const w=document.createElement('div');
           const dur=min+Math.random()*(max-min);
@@ -172,8 +151,8 @@
           lane.appendChild(w);
         }
       };
-      fill('lane-back',6,.72,26,40);
-      fill('lane-front',7,1,16,28);
+      fill('lane-back',4,.72,18,28);
+      fill('lane-front',5,1,11,18);
     })();
   </script>
 </body>
